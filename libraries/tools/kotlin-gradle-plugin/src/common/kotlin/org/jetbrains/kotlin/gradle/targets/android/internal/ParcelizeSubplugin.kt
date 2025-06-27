@@ -6,11 +6,9 @@
 @file:Suppress("PackageDirectoryMismatch") // Old package for compatibility
 package org.jetbrains.kotlin.gradle.internal
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidCompilation
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.utils.configureAndroidVariants
 
 // Use apply plugin: 'kotlin-parcelize' to enable Android Extensions in an Android project.
@@ -25,7 +23,10 @@ class ParcelizeSubplugin : KotlinCompilerPluginSupportPlugin {
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
-        return kotlinCompilation is KotlinJvmAndroidCompilation || kotlinCompilation is KotlinMultiplatformAndroidCompilation
+        return when (kotlinCompilation.platformType) {
+            KotlinPlatformType.jvm, KotlinPlatformType.androidJvm -> true
+            else -> false
+        }
     }
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
